@@ -23,36 +23,74 @@ namespace TransformacionesBasicas
             nump = 4;
         }
 
+        void rotacionAnimada(List<Point> l, string grados)
+        {
+            for(int i=1;i<=Convert.ToInt32(grados);i++)
+            {
+                DibujarFigura(Rotacion(l,(i-1).ToString()),pincel(Color.White));
+                DibujarFigura(Rotacion(l, (i).ToString()), pincel(Color.Black));
+                System.Threading.Thread.Sleep(100);
+            }
+        }
+
+        void escaladoAnimada(List<Point> l, double Esc )
+        {
+            for (double i = 1; i <= Esc; i += .1)
+            {
+                DibujarFigura(Escalado(l, i-.1), pincel(Color.White));
+                DibujarFigura(Escalado(l, i), pincel(Color.Black));
+                System.Threading.Thread.Sleep(100);
+                
+            }
+        }
+
+        void translacionAnimada(List<Point> l, string txs, string tys)
+        {
+            for (int i = 1; i <= Convert.ToInt32(txs); i++)
+            {
+                DibujarFigura(Translacion(l, (i - 1).ToString(), 0.ToString()), pincel(Color.White));
+                DibujarFigura(Translacion(l, (i).ToString(), 0.ToString()),  pincel(Color.Black));
+                System.Threading.Thread.Sleep(100);
+            }
+            for (int i = 1; i <= Convert.ToInt32(tys); i++)
+            {
+                DibujarFigura(Translacion(l,txs, (i - 1).ToString()), pincel(Color.White));
+                DibujarFigura(Translacion(l,txs, (i).ToString()), pincel(Color.Black));
+                System.Threading.Thread.Sleep(100);
+            }
+        }
+
         public List<Point> Rotacion(List<Point> l, string grados)
         {
             List<Point> pr = new List<Point>();
             double teta = Convert.ToSingle(grados);
+            teta = (Math.PI * teta)/180;
             Point pcentro = GetCentro(l);
             Point temp;
             int xe, ye,tx,ty;
-            MessageBox.Show(teta.ToString());
+            
             for (int i=0;i<l.Count;i++)
             {
-                xe = (int)((l[i].X - pcentro.X) *(Math.Cos(teta) ) + ((l[i].Y - pcentro.Y) *-Math.Sin(teta)))+ pcentro.X;
-                ye = (int)((l[i].X - pcentro.X) *(Math.Sin(teta) ) + ((l[i].Y - pcentro.Y) * Math.Cos(teta)))+ pcentro.Y;
-                temp = new Point(xe, ye);
+                temp = GetPointAng(l[i].X - pcentro.X, l[i].Y - pcentro.Y, teta);
                 pr.Add(temp);
-               
             }
-            /*Point pc = GetCentro(pr);
-            tx = pcentro.X - pc.X;
-            ty = pcentro.Y - pc.Y;
-            pr = Translacion(pr, Convert.ToString(tx), Convert.ToString(ty));*/
+            Point c2 = GetCentro(pr);
+            tx = pcentro.X - c2.X;
+            ty = pcentro.Y - c2.Y;
+            pr = Translacion(pr, tx.ToString(), ty.ToString());
+
 
             return pr;
         }
         public List<Point> Translacion(List<Point> l, string txs, string tys)
         {
+            
             List<Point> pr = new List<Point>();
             Point temp;
             int  xe, ye,tx,ty;
             tx = Convert.ToInt32(txs);
             ty = Convert.ToInt32(tys);
+      
             xe = ye = 0;
     
             for (int i = 0; i < l.Count; i++)
@@ -66,7 +104,7 @@ namespace TransformacionesBasicas
 
             return pr;
         }
-        public List<Point> Escalado(List<Point> l, float Esc)
+        public List<Point> Escalado(List<Point> l, double Esc)
         {
             List<Point> pr = new List<Point>();
             Point temp;
@@ -164,7 +202,7 @@ namespace TransformacionesBasicas
             }
             if(cont== nump)
             {
-                DibujarFigura(lp);
+                DibujarFigura(lp,pen1);
                 panel1.CreateGraphics().DrawEllipse(pen1, GetCentro(lp).X, GetCentro(lp).Y, 1, 1);
                 DibujarCentro(lp);
             }
@@ -173,14 +211,14 @@ namespace TransformacionesBasicas
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             nump = Convert.ToInt32(comboBox1.Text);
+            cont = 0;
+            lp = new List<Point>();
         }
 
         private void vScrollBar1_Scroll(object sender, ScrollEventArgs e)
         {
             
-            textBox1.Text = (vScrollBar1.Value / 10).ToString();
-
-           
+            textBox1.Text = (((float)vScrollBar1.Value / (float)10)).ToString();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -188,28 +226,31 @@ namespace TransformacionesBasicas
             panel1.CreateGraphics().Clear(Color.White);
             if (comboBox2.SelectedIndex == 0)
             {
-                DibujarFigura(Translacion(lp, translacionx.Text,translaciony.Text));
-                DibujarCentro(lp);
+                translacionAnimada(lp, translacionx.Text, translaciony.Text);
+                //DibujarFigura(Translacion(lp, translacionx.Text,translaciony.Text),pen1);
+                DibujarCentro(Translacion(lp, translacionx.Text, translaciony.Text));
             }
             if (comboBox2.SelectedIndex == 1)
             {
-                DibujarFigura(Rotacion(lp, cbxgrados.Text));
+                rotacionAnimada(lp, cbxgrados.Text);
+                //DibujarFigura(Rotacion(lp, cbxgrados.Text), pen1);
                 DibujarCentro(Rotacion(lp, cbxgrados.Text));
             }
             if (comboBox2.SelectedIndex==2)
             {
-                DibujarFigura(Escalado(lp, (float)(vScrollBar1.Value / 10)));
-                DibujarCentro(lp);
+                escaladoAnimada(lp, ((float)vScrollBar1.Value / (float)10));
+                DibujarFigura(Escalado(lp, ((float)vScrollBar1.Value / (float)10)), pen1);
+                DibujarCentro(Escalado(lp, ((float)vScrollBar1.Value / (float)10)));
             }
             if(comboBox2.SelectedIndex == 3)
             {
-                DibujarFigura(ReflexionSobreX(lp));
-                DibujarCentro(lp);
+                DibujarFigura(ReflexionSobreX(lp), pen1);
+                DibujarCentro(ReflexionSobreX(lp));
             }
             if (comboBox2.SelectedIndex == 4)
             {
-                DibujarFigura(ReflexionSobreY(lp));
-                DibujarCentro(lp);
+                DibujarFigura(ReflexionSobreY(lp), pen1);
+                DibujarCentro(ReflexionSobreY(lp));
             }
         }
 
@@ -233,7 +274,7 @@ namespace TransformacionesBasicas
             translaciony.Text = "";
         }
 
-        public void DibujarFigura(List<Point> l)
+        public void DibujarFigura(List<Point> l,Pen a)
         {
             Point[] Arr = new Point[l.Count+1];
             for (int i=0;i<lp.Count;i++)
@@ -241,7 +282,7 @@ namespace TransformacionesBasicas
                 Arr[i] = l[i];
             }
             Arr[l.Count] = l[0];
-            panel1.CreateGraphics().DrawLines(pen1, Arr);
+            panel1.CreateGraphics().DrawLines(a, Arr);
         }
 
         public void DibujarCentro(List<Point> l)
@@ -252,10 +293,28 @@ namespace TransformacionesBasicas
 
         }
 
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
+
+        }
+
         Pen pincel(Color a)
         {
             Pen pincel = new Pen(a, 1);
             return pincel;
+        }
+
+        public Point GetPointAng(int x, int y, double tetha)
+        {
+            Point e;
+            double costeta,xp,yp;
+            double senteta;
+            costeta = Math.Cos(tetha);
+            senteta = Math.Sin(tetha);
+            xp = costeta * (float)x - senteta * (float)y;
+            yp = senteta * (float)x + costeta * (float)y;
+            e = new Point((int)xp,(int)yp);
+            return e;
         }
     }
 }
