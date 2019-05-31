@@ -45,12 +45,14 @@ namespace TransformacionesBasicas
 
         void rotacionAnimada(List<Point> l, string grados)
         {
-            for(int i=1;i<=Convert.ToInt32(grados);i++)
+            for(int i=0;i<=Convert.ToInt32(grados);i++)
             {
-                DibujarFigura(Rotacion(l,(i-1).ToString()),pincel(Color.White));
+                
                 DibujarFigura(Rotacion(l, (i).ToString()), pincel(Color.Black));
                 System.Threading.Thread.Sleep(100);
+                DibujarFigura(Rotacion(l, (i).ToString()), pincel(Color.White));
             }
+            DibujarFigura(Rotacion(l, grados), pincel(Color.Black));
         }
 
         void escaladoAnimada(List<Point> l, double Esc )
@@ -63,25 +65,29 @@ namespace TransformacionesBasicas
                 inc = -.10;
                 for (double i = 1; i >= Esc; i = i + inc)
                 {
-                    dibujarrectblanco(GetPMenor(Escalado(l, i-inc)), GetPMayor(Escalado(l, i-inc)));
+                    
                     DibujarFigura(Escalado(l, i), pincel(Color.Black));
                     System.Threading.Thread.Sleep(100);
+                    DibujarFigura(Escalado(l, i), pincel(Color.White));
 
                 }
+                
             }
             else
             {
                 for (double i = 1; i <= Esc; i = i + inc)
                 {
 
-                    dibujarrectblanco(GetPMenor(Escalado(l, i - inc)), GetPMayor(Escalado(l, i - inc)));
+                   
                     //DibujarFigura(Escalado(l, i - inc), pincel(Color.White));
                     DibujarFigura(Escalado(l, i), pincel(Color.Black));
                     System.Threading.Thread.Sleep(100);
-
+                    DibujarFigura(Escalado(l, i), pincel(Color.White));
                 }
             }
-           
+
+            DibujarFigura(Escalado(l, Esc), pincel(Color.Black));
+
         }
 
         void translacionAnimada(List<Point> l, string txs, string tys)
@@ -96,18 +102,24 @@ namespace TransformacionesBasicas
             {
                 incy = -1;
             }
-            for (int i = 1; i != Convert.ToInt32(txs); i+=incx)
+            for (int i = 0; i != Convert.ToInt32(txs); i+=incx)
             {
-                DibujarFigura(Translacion(l, (i - incx).ToString(), 0.ToString()), pincel(Color.White));
+                
                 DibujarFigura(Translacion(l, (i).ToString(), 0.ToString()),  pincel(Color.Black));
                 System.Threading.Thread.Sleep(10);
+                DibujarFigura(Translacion(l, (i).ToString(), 0.ToString()), pincel(Color.White));
             }
-            for (int i = 1; i != Convert.ToInt32(tys); i+=incy)
+            
+
+            for (int i = 0; i != Convert.ToInt32(tys); i+=incy)
             {
-                DibujarFigura(Translacion(l,txs, (i - incy).ToString()), pincel(Color.White));
+              
                 DibujarFigura(Translacion(l,txs, (i).ToString()), pincel(Color.Black));
                 System.Threading.Thread.Sleep(10);
+                DibujarFigura(Translacion(l, txs, (i).ToString()), pincel(Color.White));
             }
+
+            DibujarFigura(Translacion(l, txs, tys), pincel(Color.Black));
         }
 
         public List<Point> Rotacion(List<Point> l, string grados)
@@ -327,6 +339,8 @@ namespace TransformacionesBasicas
                 translacionAnimada(lp, translacionx.Text, translaciony.Text);
                 //DibujarFigura(Translacion(lp, translacionx.Text,translaciony.Text),pen1);
                 DibujarCentro(Translacion(lp, translacionx.Text, translaciony.Text));
+
+                lp = Translacion(lp, translacionx.Text, translaciony.Text);
             }
             if (comboBox2.SelectedIndex == 1)
             {
@@ -334,6 +348,7 @@ namespace TransformacionesBasicas
                 //rotacionAnimada(lp, cbxgrados.Text);
                 //DibujarFigura(Rotacion(lp, cbxgrados.Text), pen1);
                 DibujarCentro(Rotacion(lp, cbxgrados.Text));
+                lp = Rotacion(lp, cbxgrados.Text);
             }
             if (comboBox2.SelectedIndex==2)
             {
@@ -341,11 +356,13 @@ namespace TransformacionesBasicas
                 //escaladoAnimada(lp, ((float)vScrollBar1.Value / (float)10));
                 //DibujarFigura(Escalado(lp, ((float)vScrollBar1.Value / (float)10)), pen1);
                 DibujarCentro(Escalado(lp, ((float)vScrollBar1.Value / (float)10)));
+                lp = Escalado(lp, ((float)vScrollBar1.Value / (float)10));
             }
             if(comboBox2.SelectedIndex == 3)
             {
                 DibujarFigura(ReflexionSobreX(lp), pen1);
                 DibujarCentro(ReflexionSobreX(lp));
+
             }
             if (comboBox2.SelectedIndex == 4)
             {
@@ -381,7 +398,8 @@ namespace TransformacionesBasicas
             {
                 Arr[i] = l[i];
             }
-            Arr[l.Count] = l[0];
+            if (l.Count>1)
+                Arr[l.Count] = l[0];
             panel1.CreateGraphics().DrawLines(a, Arr);
         }
 
@@ -415,6 +433,13 @@ namespace TransformacionesBasicas
             yp = senteta * (float)x + costeta * (float)y;
             e = new Point((int)xp,(int)yp);
             return e;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            panel1.CreateGraphics().Clear(Color.White);
+            lp = new List<Point>();
+            cont = 0;
         }
 
         void dibujarrectblanco(Point a, Point b)
